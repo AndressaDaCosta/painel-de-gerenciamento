@@ -9,6 +9,7 @@ import { Sidebar } from './components/Sidebar'
 import { Header } from './components/Header'
 import { Dashboard } from './components/Dashboard'
 import { PostCard } from './components/PostCard'
+import { CategoryCounter } from './components/CategoryCounter'
 
 interface Post {
   id: string
@@ -46,7 +47,17 @@ function App() {
 
   const loadPosts = () => {
     const savedPosts = JSON.parse(localStorage.getItem('posts') || '[]')
-    setPosts(savedPosts)
+    // Converte posts antigos para o novo formato se necessário
+    const normalizedPosts = savedPosts.map((post: any) => ({
+      id: post.id || Date.now().toString() + Math.random(),
+      title: post.title || post.titulo,
+      description: post.description || post.descricao,
+      imageUrl: post.imageUrl || post.capa,
+      publishDate: post.publishDate || post.data,
+      category: post.category || post.tipo?.toLowerCase() || 'artigo',
+      createdAt: post.createdAt || new Date().toISOString()
+    }))
+    setPosts(normalizedPosts)
   }
 
   const validateForm = (): boolean => {
@@ -260,6 +271,8 @@ function App() {
                 <p>Gerencie todos os seus posts criados</p>
               </div>
 
+              {posts.length > 0 && <CategoryCounter posts={posts} />}
+              
               <div className="posts-container">
                 {posts.length === 0 ? (
                   <div className="empty-state">
